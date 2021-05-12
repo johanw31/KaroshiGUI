@@ -16,6 +16,8 @@ uint32_t identSpd;
 uint32_t identCur;
 bool connectState = false;
 int last = 0;
+double last2 = 0;
+double last3 = 0;
 
 namespace KaroshiGUI {
 
@@ -66,6 +68,14 @@ namespace KaroshiGUI {
 	private: System::Windows::Forms::Timer^ chartTimer;
 	private: System::Windows::Forms::ComboBox^ ControlMode;
 	private: System::Windows::Forms::Button^ cntrlApplyBtn;
+	private: System::Windows::Forms::TextBox^ curBox;
+	private: System::Windows::Forms::TrackBar^ curBar;
+	private: System::Windows::Forms::Label^ label4;
+	private: System::Windows::Forms::NumericUpDown^ idDebug;
+	private: System::Windows::Forms::NumericUpDown^ dtaDebug;
+	private: System::Windows::Forms::Button^ sendDebug;
+	private: System::Windows::Forms::Label^ label5;
+	private: System::Windows::Forms::DataVisualization::Charting::Chart^ curChart;
 
 
 
@@ -88,6 +98,10 @@ namespace KaroshiGUI {
 			System::Windows::Forms::DataVisualization::Charting::ChartArea^ chartArea1 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
 			System::Windows::Forms::DataVisualization::Charting::Legend^ legend1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
 			System::Windows::Forms::DataVisualization::Charting::Series^ series1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^ chartArea2 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^ legend2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::Series^ series2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
+			System::Windows::Forms::DataVisualization::Charting::Series^ series3 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
 			this->connectBt = (gcnew System::Windows::Forms::Button());
 			this->disconnectBt = (gcnew System::Windows::Forms::Button());
 			this->idSpd = (gcnew System::Windows::Forms::NumericUpDown());
@@ -102,15 +116,27 @@ namespace KaroshiGUI {
 			this->chartTimer = (gcnew System::Windows::Forms::Timer(this->components));
 			this->ControlMode = (gcnew System::Windows::Forms::ComboBox());
 			this->cntrlApplyBtn = (gcnew System::Windows::Forms::Button());
+			this->curBox = (gcnew System::Windows::Forms::TextBox());
+			this->curBar = (gcnew System::Windows::Forms::TrackBar());
+			this->label4 = (gcnew System::Windows::Forms::Label());
+			this->idDebug = (gcnew System::Windows::Forms::NumericUpDown());
+			this->dtaDebug = (gcnew System::Windows::Forms::NumericUpDown());
+			this->sendDebug = (gcnew System::Windows::Forms::Button());
+			this->label5 = (gcnew System::Windows::Forms::Label());
+			this->curChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->idSpd))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->baudrate))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->spdChart))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->curBar))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->idDebug))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dtaDebug))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->curChart))->BeginInit();
 			this->SuspendLayout();
 			// 
 			// connectBt
 			// 
-			this->connectBt->Location = System::Drawing::Point(12, 522);
+			this->connectBt->Location = System::Drawing::Point(21, 741);
 			this->connectBt->Name = L"connectBt";
 			this->connectBt->Size = System::Drawing::Size(75, 23);
 			this->connectBt->TabIndex = 0;
@@ -120,7 +146,7 @@ namespace KaroshiGUI {
 			// 
 			// disconnectBt
 			// 
-			this->disconnectBt->Location = System::Drawing::Point(115, 522);
+			this->disconnectBt->Location = System::Drawing::Point(124, 741);
 			this->disconnectBt->Name = L"disconnectBt";
 			this->disconnectBt->Size = System::Drawing::Size(75, 23);
 			this->disconnectBt->TabIndex = 1;
@@ -131,7 +157,7 @@ namespace KaroshiGUI {
 			// idSpd
 			// 
 			this->idSpd->Hexadecimal = true;
-			this->idSpd->Location = System::Drawing::Point(12, 457);
+			this->idSpd->Location = System::Drawing::Point(21, 676);
 			this->idSpd->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1000000, 0, 0, 0 });
 			this->idSpd->Name = L"idSpd";
 			this->idSpd->Size = System::Drawing::Size(178, 20);
@@ -139,7 +165,7 @@ namespace KaroshiGUI {
 			// 
 			// baudrate
 			// 
-			this->baudrate->Location = System::Drawing::Point(12, 496);
+			this->baudrate->Location = System::Drawing::Point(21, 715);
 			this->baudrate->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1000000, 0, 0, 0 });
 			this->baudrate->Name = L"baudrate";
 			this->baudrate->Size = System::Drawing::Size(178, 20);
@@ -147,16 +173,19 @@ namespace KaroshiGUI {
 			// 
 			// SpdBox
 			// 
+			this->SpdBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
 			this->SpdBox->Location = System::Drawing::Point(12, 56);
 			this->SpdBox->Multiline = true;
 			this->SpdBox->Name = L"SpdBox";
 			this->SpdBox->Size = System::Drawing::Size(120, 26);
 			this->SpdBox->TabIndex = 4;
+			this->SpdBox->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
 			// 
 			// trackBar1
 			// 
 			this->trackBar1->Location = System::Drawing::Point(147, 56);
-			this->trackBar1->Maximum = 1000;
+			this->trackBar1->Maximum = 3500;
 			this->trackBar1->Name = L"trackBar1";
 			this->trackBar1->Size = System::Drawing::Size(415, 45);
 			this->trackBar1->TabIndex = 25;
@@ -167,6 +196,10 @@ namespace KaroshiGUI {
 			// 
 			chartArea1->AxisX->Enabled = System::Windows::Forms::DataVisualization::Charting::AxisEnabled::False;
 			chartArea1->AxisX->ScaleView->Size = 700;
+			chartArea1->AxisY->IntervalAutoMode = System::Windows::Forms::DataVisualization::Charting::IntervalAutoMode::VariableCount;
+			chartArea1->AxisY->Maximum = 3500;
+			chartArea1->AxisY->Minimum = -50;
+			chartArea1->AxisY->ScrollBar->ButtonColor = System::Drawing::Color::Red;
 			chartArea1->Name = L"ChartArea1";
 			this->spdChart->ChartAreas->Add(chartArea1);
 			legend1->Name = L"Legend1";
@@ -178,7 +211,7 @@ namespace KaroshiGUI {
 			series1->Legend = L"Legend1";
 			series1->Name = L"Drehzahl";
 			this->spdChart->Series->Add(series1);
-			this->spdChart->Size = System::Drawing::Size(630, 504);
+			this->spdChart->Size = System::Drawing::Size(630, 409);
 			this->spdChart->TabIndex = 6;
 			this->spdChart->Text = L"chart1";
 			// 
@@ -194,16 +227,16 @@ namespace KaroshiGUI {
 			// label2
 			// 
 			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(9, 441);
+			this->label2->Location = System::Drawing::Point(18, 660);
 			this->label2->Name = L"label2";
-			this->label2->Size = System::Drawing::Size(47, 13);
+			this->label2->Size = System::Drawing::Size(112, 13);
 			this->label2->TabIndex = 8;
-			this->label2->Text = L"Identifier";
+			this->label2->Text = L"Identifier CTRL Speed";
 			// 
 			// label3
 			// 
 			this->label3->AutoSize = true;
-			this->label3->Location = System::Drawing::Point(9, 480);
+			this->label3->Location = System::Drawing::Point(18, 699);
 			this->label3->Name = L"label3";
 			this->label3->Size = System::Drawing::Size(50, 13);
 			this->label3->TabIndex = 9;
@@ -211,7 +244,7 @@ namespace KaroshiGUI {
 			// 
 			// debugBox
 			// 
-			this->debugBox->Location = System::Drawing::Point(218, 456);
+			this->debugBox->Location = System::Drawing::Point(227, 675);
 			this->debugBox->Multiline = true;
 			this->debugBox->Name = L"debugBox";
 			this->debugBox->Size = System::Drawing::Size(318, 89);
@@ -229,14 +262,14 @@ namespace KaroshiGUI {
 				L"Idle", L"InitSys", L"ManMode", L"FocWithSnsr",
 					L"FocSnsrlss", L"Shutdown", L"RstStMac"
 			});
-			this->ControlMode->Location = System::Drawing::Point(12, 215);
+			this->ControlMode->Location = System::Drawing::Point(12, 243);
 			this->ControlMode->Name = L"ControlMode";
 			this->ControlMode->Size = System::Drawing::Size(120, 21);
 			this->ControlMode->TabIndex = 11;
 			// 
 			// cntrlApplyBtn
 			// 
-			this->cntrlApplyBtn->Location = System::Drawing::Point(147, 215);
+			this->cntrlApplyBtn->Location = System::Drawing::Point(147, 243);
 			this->cntrlApplyBtn->Name = L"cntrlApplyBtn";
 			this->cntrlApplyBtn->Size = System::Drawing::Size(83, 23);
 			this->cntrlApplyBtn->TabIndex = 12;
@@ -244,11 +277,103 @@ namespace KaroshiGUI {
 			this->cntrlApplyBtn->UseVisualStyleBackColor = true;
 			this->cntrlApplyBtn->Click += gcnew System::EventHandler(this, &KaroshiForm::cntrlApplyBtn_Click);
 			// 
+			// curBox
+			// 
+			this->curBox->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->curBox->Location = System::Drawing::Point(12, 113);
+			this->curBox->Multiline = true;
+			this->curBox->Name = L"curBox";
+			this->curBox->Size = System::Drawing::Size(120, 26);
+			this->curBox->TabIndex = 26;
+			// 
+			// curBar
+			// 
+			this->curBar->Location = System::Drawing::Point(147, 113);
+			this->curBar->Name = L"curBar";
+			this->curBar->Size = System::Drawing::Size(415, 45);
+			this->curBar->TabIndex = 27;
+			// 
+			// label4
+			// 
+			this->label4->AutoSize = true;
+			this->label4->Location = System::Drawing::Point(12, 94);
+			this->label4->Name = L"label4";
+			this->label4->Size = System::Drawing::Size(72, 13);
+			this->label4->TabIndex = 28;
+			this->label4->Text = L"CTRL Current";
+			// 
+			// idDebug
+			// 
+			this->idDebug->Location = System::Drawing::Point(21, 620);
+			this->idDebug->Name = L"idDebug";
+			this->idDebug->Size = System::Drawing::Size(120, 20);
+			this->idDebug->TabIndex = 29;
+			// 
+			// dtaDebug
+			// 
+			this->dtaDebug->Location = System::Drawing::Point(147, 620);
+			this->dtaDebug->Name = L"dtaDebug";
+			this->dtaDebug->Size = System::Drawing::Size(120, 20);
+			this->dtaDebug->TabIndex = 30;
+			// 
+			// sendDebug
+			// 
+			this->sendDebug->Location = System::Drawing::Point(273, 620);
+			this->sendDebug->Name = L"sendDebug";
+			this->sendDebug->Size = System::Drawing::Size(75, 20);
+			this->sendDebug->TabIndex = 31;
+			this->sendDebug->Text = L"Send";
+			this->sendDebug->UseVisualStyleBackColor = true;
+			// 
+			// label5
+			// 
+			this->label5->AutoSize = true;
+			this->label5->Location = System::Drawing::Point(18, 604);
+			this->label5->Name = L"label5";
+			this->label5->Size = System::Drawing::Size(193, 13);
+			this->label5->TabIndex = 32;
+			this->label5->Text = L"ID (HEX)                            Data   (HEX)";
+			// 
+			// curChart
+			// 
+			chartArea2->AxisX->Enabled = System::Windows::Forms::DataVisualization::Charting::AxisEnabled::False;
+			chartArea2->AxisY->IntervalAutoMode = System::Windows::Forms::DataVisualization::Charting::IntervalAutoMode::VariableCount;
+			chartArea2->AxisY->Maximum = 4;
+			chartArea2->AxisY->Minimum = -4;
+			chartArea2->Name = L"ChartArea1";
+			this->curChart->ChartAreas->Add(chartArea2);
+			legend2->Name = L"Legend1";
+			this->curChart->Legends->Add(legend2);
+			this->curChart->Location = System::Drawing::Point(568, 456);
+			this->curChart->Name = L"curChart";
+			series2->ChartArea = L"ChartArea1";
+			series2->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
+			series2->Legend = L"Legend1";
+			series2->Name = L"Iq";
+			series3->ChartArea = L"ChartArea1";
+			series3->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
+			series3->Legend = L"Legend1";
+			series3->Name = L"Id";
+			this->curChart->Series->Add(series2);
+			this->curChart->Series->Add(series3);
+			this->curChart->Size = System::Drawing::Size(630, 308);
+			this->curChart->TabIndex = 33;
+			this->curChart->Text = L"chart1";
+			// 
 			// KaroshiForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1210, 550);
+			this->ClientSize = System::Drawing::Size(1210, 776);
+			this->Controls->Add(this->curChart);
+			this->Controls->Add(this->label5);
+			this->Controls->Add(this->sendDebug);
+			this->Controls->Add(this->dtaDebug);
+			this->Controls->Add(this->idDebug);
+			this->Controls->Add(this->label4);
+			this->Controls->Add(this->curBar);
+			this->Controls->Add(this->curBox);
 			this->Controls->Add(this->cntrlApplyBtn);
 			this->Controls->Add(this->ControlMode);
 			this->Controls->Add(this->debugBox);
@@ -268,6 +393,10 @@ namespace KaroshiGUI {
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->baudrate))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar1))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->spdChart))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->curBar))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->idDebug))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->dtaDebug))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->curChart))->EndInit();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -297,7 +426,6 @@ private: System::Void connectBt_Click(System::Object^ sender, System::EventArgs^
 		// Create device object
 		can_v2_create(&can, UID, &ipcon);
 
-		// Connect to brickd
 		if (ipcon_connect(&ipcon, HOST, PORT) < 0) {
 			debugBox->Text += "Brickdaemon not connected\r\n";
 		}
@@ -336,11 +464,21 @@ private: System::Void chartTimer_Tick(System::Object^ sender, System::EventArgs^
 
 	if (connectState) {
 		can_v2_read_frame(&can, &success, &type, &ident, data, &dataLength);
-		if (success && ident == 0x3e8) { last = getCanData(data); };
+		if (success && ident == 0x3e8) {last = getCanData(data);};
+		if (success && ident == 0x3e7) {last2 = getCanFloatData(data);};
+		if (success && ident == 0x3e6) {last3 = getCanFloatData(data); };
 	}
 	spdChart->Series["Drehzahl"]->Points->AddY(last);
 	if (spdChart->Series["Drehzahl"]->Points->Count == 700) {
 		spdChart->Series["Drehzahl"]->Points->RemoveAt(0);
+	}
+	curChart->Series["Iq"]->Points->AddY(last2);
+	if (curChart->Series["Iq"]->Points->Count == 100) {
+		curChart->Series["Iq"]->Points->RemoveAt(0);
+	}
+	curChart->Series["Id"]->Points->AddY(last3);
+	if (curChart->Series["Id"]->Points->Count == 100) {
+		curChart->Series["Id"]->Points->RemoveAt(0);
 	}
 }
 private: System::Void cntrlApplyBtn_Click(System::Object^ sender, System::EventArgs^ e) {
@@ -349,6 +487,8 @@ private: System::Void cntrlApplyBtn_Click(System::Object^ sender, System::EventA
 	getSpeedData((uint16_t)ControlMode->SelectedIndex, data);
 	can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, CntrlMode, data, 2, &success);
 }
+
+
 
 };
 }

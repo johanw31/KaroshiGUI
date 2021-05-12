@@ -1,7 +1,8 @@
 #include <stdint.h>
 #include "functions.h"
+#include <iostream>
 
-
+using namespace std;
 
 
 union canData16 {
@@ -16,7 +17,7 @@ union canData32 {
 	uint8_t Data[4];
 } canVal32;
 
-inline double fixed_to_float(uint16_t input)
+double fixed_to_float(int32_t input)
 {
 	return ((double)input / (double)(1 << FIXED_POINT_FRACTIONAL_BITS));
 }
@@ -27,9 +28,11 @@ void getSpeedData(uint16_t speed, uint8_t* data) {
 }
 
 int getCanData(uint8_t* data) {
-	canVal16.Data[1] = data[1];
-	canVal16.Data[0] = data[0];
-	return canVal16.int16Data;
+	canVal32.Data[3] = data[3];
+	canVal32.Data[2] = data[2];
+	canVal32.Data[1] = data[1];
+	canVal32.Data[0] = data[0];
+	return canVal32.int32Data;
 }
 
 double getCanFloatData(uint8_t* data) {
@@ -37,5 +40,6 @@ double getCanFloatData(uint8_t* data) {
 	canVal32.Data[2] = data[2];
 	canVal32.Data[1] = data[1];
 	canVal32.Data[0] = data[0];
+	cout << canVal32.int32Data << endl;
 	return fixed_to_float(canVal32.int32Data);
 }
