@@ -43,3 +43,7 @@ double getCanFloatData(uint8_t* data) {
 	cout << canVal32.int32Data << endl;
 	return fixed_to_float(canVal32.int32Data);
 }
+
+int getCanDataInt8(uint8_t* data) {
+	return (int8_t)data * (-1);
+}
