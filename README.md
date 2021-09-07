@@ -1,5 +1,5 @@
 # KaroshiGUI
-/*
+
 CAN Identifier
 
 Mot Speed from Mot TI Board to Break TI Board with id 0x3E8
@@ -13,4 +13,4 @@ States id = 0x601
 
 read from Brake TI Board
 Speed and Torque in one Frame with id 0x2E0
-*/
+
