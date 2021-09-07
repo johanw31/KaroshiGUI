@@ -27,12 +27,17 @@ void getSpeedData(uint16_t speed, uint8_t* data) {
 	data[1] = (uint8_t)(speed >> 8);
 }
 
-int getCanData(uint8_t* data) {
-	canVal32.Data[3] = data[3];
-	canVal32.Data[2] = data[2];
-	canVal32.Data[1] = data[1];
-	canVal32.Data[0] = data[0];
-	return canVal32.int32Data;
+void getCanData(uint8_t* rawData, int32_t* retData) {
+	canVal32.Data[3] = rawData[1];
+	canVal32.Data[2] = rawData[0];
+	canVal32.Data[1] = 0;
+	canVal32.Data[0] = 0;
+	retData[0] = canVal32.int32Data >> 16;
+	canVal32.Data[3] = rawData[3];
+	canVal32.Data[2] = rawData[2];
+	canVal32.Data[1] = 0;
+	canVal32.Data[0] = 0;
+	retData[1] = canVal32.int32Data >> 16;
 }
 
 double getCanFloatData(uint8_t* data) {

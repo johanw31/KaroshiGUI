@@ -2,9 +2,10 @@
 
 
 #define FIXED_POINT_FRACTIONAL_BITS 24
+#define magnetCount 8
 
 void getSpeedData(uint16_t speed, uint8_t* data);
-int getCanData(uint8_t* data);
+void getCanData(uint8_t* rawData, int32_t* retData);
 double getCanFloatData(uint8_t* data);
 double fixed_to_float(int32_t input);
 int getCanDataInt8(uint8_t* data);

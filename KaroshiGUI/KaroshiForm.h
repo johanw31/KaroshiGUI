@@ -20,9 +20,11 @@ uint32_t writeIdCur;
 uint32_t writeIdTrq;
 uint32_t writeIdBraCur;
 bool connectState = false;
+bool pp = false;
 int actSpdDta = 0;
 int actTrqDta = 0;
 float rads = 0.42;
+int32_t retData[] = { 0,0 }; // Speed and Torque come in 1 Frame. getCanData is used to get the Information
 
 namespace KaroshiGUI {
 
@@ -604,16 +606,17 @@ private: System::Void connectBt_Click(System::Object^ sender, System::EventArgs^
 		// Create device object
 		can_v2_create(&can, UID, &ipcon);
 		if (ipcon_connect(&ipcon, HOST, PORT) < 0) {
-			debugBox->Text += "Brickdaemon not connected\r\n";
+			debugBox->Text += "Could not connect to brickd\r\n";
 		}
 		else {
+			Sleep(20);
 			can_v2_set_transceiver_configuration(&can, (uint32_t)956250/*(uint32_t)baudrate->Value*/, 625, CAN_V2_TRANSCEIVER_MODE_NORMAL);
+			int8_t rbs[] = { 16,-8 };
+			can_v2_set_queue_configuration(&can, 8, 0, 383, rbs, 2, 1);
 			debugBox->Text += "Connected\r\n";
 			debugBox->Text += "\r\nBaudrate: ";
 			debugBox->Text += baudrate->Value;
 			debugBox->Text += "\r\n";
-			int8_t rbs[] = { 16,-8 };
-			can_v2_set_queue_configuration(&can, 8, 0, 383, rbs, 2, 1);
 			connectState = true;
 			chartTimer->Start();
 		}
@@ -623,6 +626,7 @@ private: System::Void connectBt_Click(System::Object^ sender, System::EventArgs^
 * destroy connection to MasterBrick if button clicked
 */
 private: System::Void disconnectBt_Click(System::Object^ sender, System::EventArgs^ e) {
+	chartTimer->Stop();
 	uint8_t data[2];
 	getSpeedData((uint16_t)0, data);
 	can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdSpd, data, 2, &success);
@@ -632,7 +636,6 @@ private: System::Void disconnectBt_Click(System::Object^ sender, System::EventAr
 	ipcon_destroy(&ipcon); // Calls ipcon_disconnect internally
 	debugBox->Text = "Disconnected";
 	connectState = false;
-	chartTimer->Stop();
 }
 /*
 * Timer for reading and printing CAN Data
@@ -641,32 +644,38 @@ private: System::Void chartTimer_Tick(System::Object^ sender, System::EventArgs^
 	uint8_t data[15];
 	uint8_t dataLength;
 	//identifiers
-	uint32_t readIdent;
+	uint32_t readIdent1;
+	uint32_t readIdent2;
 	uint32_t spdIdent = 0x3E8;
 	uint32_t trqIdent = 0x2E0;
 	//Read filter
 	uint32_t filterMask = 0x7FF;
-	uint32_t filterIdent;
+	uint32_t filterIdent1;
+	uint32_t filterIdent2;
 	uint8_t type = CAN_V2_FRAME_TYPE_STANDARD_DATA;
 
 	if (connectState) {
-		can_v2_read_frame(&can, &success, &type, &readIdent, data, &dataLength);
-		if (success && readIdent == spdIdent) {
-			actSpdDta = getCanData(data) / rads;
-			filterIdent = trqIdent;
+		pp = !pp;
+		filterIdent1 = trqIdent;
+		filterIdent2 = trqIdent;
+
+		can_v2_set_read_filter_configuration(&can, (uint8_t)0, CAN_V2_FILTER_MODE_MATCH_STANDARD_ONLY, filterMask, filterIdent2);
+		can_v2_read_frame(&can, &success, &type, &readIdent1, data, &dataLength);
+
+		if (success && readIdent1 == trqIdent) {
+			getCanData(data,retData);
 		};
-		if (success && readIdent == trqIdent) {
-			actTrqDta = getCanData(data);
-			filterIdent = spdIdent;
-		};
-		can_v2_set_read_filter_configuration(&can, (uint8_t)0, CAN_V2_FILTER_MODE_MATCH_STANDARD_ONLY, filterMask, filterIdent);
+		/*if (success && readIdent2 == trqIdent) {
+			actTrqDta = getCanData(data,retData);
+		};*/
+		
 	}
-	spdChart->Series["Drehzahl"]->Points->AddY(actSpdDta);
+	spdChart->Series["Drehzahl"]->Points->AddY(retData[1]);
 	if (spdChart->Series["Drehzahl"]->Points->Count == 700) {
 		spdChart->Series["Drehzahl"]->Points->RemoveAt(0);
 		ActSpdBox->Text = actSpdDta.ToString();
 	}
-	trqChart->Series["Torque"]->Points->AddY(actTrqDta);
+	trqChart->Series["Torque"]->Points->AddY(retData[0]);
 	if (trqChart->Series["Torque"]->Points->Count == 700) {
 		trqChart->Series["Torque"]->Points->RemoveAt(0);
 		ActTrqBox->Text = actTrqDta.ToString();
@@ -717,7 +726,7 @@ private: System::Void curBraBar_MouseCaptureChanged(System::Object^ sender, Syst
 	if (connectState) {
 		uint8_t data[2];
 		writeIdBraCur = (uint32_t)0x501;//(uint32_t)idSpd->Value;
-		getSpeedData((uint16_t)(curBraBar->Value), data);
+		getSpeedData((uint16_t)(curBraBar->Value) * magnetCount, data);
 		can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdBraCur, data, 2, &success);
 	}
 	else {
