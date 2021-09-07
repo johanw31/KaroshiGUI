@@ -63,13 +63,13 @@ namespace KaroshiGUI {
 	private: System::Windows::Forms::Button^ connectBt;
 	protected:
 	private: System::Windows::Forms::Button^ disconnectBt;
-	private: System::Windows::Forms::NumericUpDown^ idSpd;
+
 	private: System::Windows::Forms::NumericUpDown^ baudrate;
 	private: System::Windows::Forms::TextBox^ SpdBox;
 	private: System::Windows::Forms::TrackBar^ trackBar1;
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^ spdChart;
 	private: System::Windows::Forms::Label^ label1;
-	private: System::Windows::Forms::Label^ label2;
+
 	private: System::Windows::Forms::Label^ label3;
 	private: System::Windows::Forms::TextBox^ debugBox;
 	private: System::Windows::Forms::Timer^ chartTimer;
@@ -99,6 +99,9 @@ namespace KaroshiGUI {
 	private: System::Windows::Forms::TrackBar^ trqBraBar;
 	private: System::Windows::Forms::TrackBar^ curBraBar;
 	private: System::Windows::Forms::Label^ Info;
+	private: System::Windows::Forms::Label^ label2;
+	private: System::Windows::Forms::Label^ label6;
+	private: System::Windows::Forms::Label^ label7;
 
 
 
@@ -121,21 +124,19 @@ namespace KaroshiGUI {
 		void InitializeComponent(void)
 		{
 			this->components = (gcnew System::ComponentModel::Container());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^ chartArea3 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^ legend3 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::Series^ series3 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
-			System::Windows::Forms::DataVisualization::Charting::ChartArea^ chartArea4 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
-			System::Windows::Forms::DataVisualization::Charting::Legend^ legend4 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
-			System::Windows::Forms::DataVisualization::Charting::Series^ series4 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^ chartArea1 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^ legend1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::Series^ series1 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
+			System::Windows::Forms::DataVisualization::Charting::ChartArea^ chartArea2 = (gcnew System::Windows::Forms::DataVisualization::Charting::ChartArea());
+			System::Windows::Forms::DataVisualization::Charting::Legend^ legend2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Legend());
+			System::Windows::Forms::DataVisualization::Charting::Series^ series2 = (gcnew System::Windows::Forms::DataVisualization::Charting::Series());
 			this->connectBt = (gcnew System::Windows::Forms::Button());
 			this->disconnectBt = (gcnew System::Windows::Forms::Button());
-			this->idSpd = (gcnew System::Windows::Forms::NumericUpDown());
 			this->baudrate = (gcnew System::Windows::Forms::NumericUpDown());
 			this->SpdBox = (gcnew System::Windows::Forms::TextBox());
 			this->trackBar1 = (gcnew System::Windows::Forms::TrackBar());
 			this->spdChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
 			this->label1 = (gcnew System::Windows::Forms::Label());
-			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->label3 = (gcnew System::Windows::Forms::Label());
 			this->debugBox = (gcnew System::Windows::Forms::TextBox());
 			this->chartTimer = (gcnew System::Windows::Forms::Timer(this->components));
@@ -162,7 +163,9 @@ namespace KaroshiGUI {
 			this->trqBraBar = (gcnew System::Windows::Forms::TrackBar());
 			this->curBraBar = (gcnew System::Windows::Forms::TrackBar());
 			this->Info = (gcnew System::Windows::Forms::Label());
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->idSpd))->BeginInit();
+			this->label2 = (gcnew System::Windows::Forms::Label());
+			this->label6 = (gcnew System::Windows::Forms::Label());
+			this->label7 = (gcnew System::Windows::Forms::Label());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->baudrate))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar1))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->spdChart))->BeginInit();
@@ -194,15 +197,6 @@ namespace KaroshiGUI {
 			this->disconnectBt->UseVisualStyleBackColor = true;
 			this->disconnectBt->Click += gcnew System::EventHandler(this, &KaroshiForm::disconnectBt_Click);
 			// 
-			// idSpd
-			// 
-			this->idSpd->Hexadecimal = true;
-			this->idSpd->Location = System::Drawing::Point(21, 687);
-			this->idSpd->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 1000000, 0, 0, 0 });
-			this->idSpd->Name = L"idSpd";
-			this->idSpd->Size = System::Drawing::Size(178, 20);
-			this->idSpd->TabIndex = 2;
-			// 
 			// baudrate
 			// 
 			this->baudrate->Location = System::Drawing::Point(21, 727);
@@ -210,6 +204,7 @@ namespace KaroshiGUI {
 			this->baudrate->Name = L"baudrate";
 			this->baudrate->Size = System::Drawing::Size(178, 20);
 			this->baudrate->TabIndex = 3;
+			this->baudrate->Value = System::Decimal(gcnew cli::array< System::Int32 >(4) { 956250, 0, 0, 0 });
 			// 
 			// SpdBox
 			// 
@@ -235,23 +230,25 @@ namespace KaroshiGUI {
 			// 
 			// spdChart
 			// 
-			chartArea3->AxisX->Enabled = System::Windows::Forms::DataVisualization::Charting::AxisEnabled::False;
-			chartArea3->AxisX->ScaleView->Size = 700;
-			chartArea3->AxisY->IntervalAutoMode = System::Windows::Forms::DataVisualization::Charting::IntervalAutoMode::VariableCount;
-			chartArea3->AxisY->Maximum = 3500;
-			chartArea3->AxisY->Minimum = -50;
-			chartArea3->AxisY->ScrollBar->ButtonColor = System::Drawing::Color::Red;
-			chartArea3->Name = L"ChartArea1";
-			this->spdChart->ChartAreas->Add(chartArea3);
-			legend3->Name = L"Legend1";
-			this->spdChart->Legends->Add(legend3);
+			this->spdChart->BackColor = System::Drawing::SystemColors::ControlDark;
+			this->spdChart->BackSecondaryColor = System::Drawing::Color::White;
+			chartArea1->AxisX->Enabled = System::Windows::Forms::DataVisualization::Charting::AxisEnabled::False;
+			chartArea1->AxisX->ScaleView->Size = 700;
+			chartArea1->AxisY->IntervalAutoMode = System::Windows::Forms::DataVisualization::Charting::IntervalAutoMode::VariableCount;
+			chartArea1->AxisY->Maximum = 3500;
+			chartArea1->AxisY->Minimum = -50;
+			chartArea1->AxisY->ScrollBar->ButtonColor = System::Drawing::Color::Red;
+			chartArea1->Name = L"ChartArea1";
+			this->spdChart->ChartAreas->Add(chartArea1);
+			legend1->Name = L"Legend1";
+			this->spdChart->Legends->Add(legend1);
 			this->spdChart->Location = System::Drawing::Point(568, 12);
 			this->spdChart->Name = L"spdChart";
-			series3->ChartArea = L"ChartArea1";
-			series3->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::FastLine;
-			series3->Legend = L"Legend1";
-			series3->Name = L"Drehzahl";
-			this->spdChart->Series->Add(series3);
+			series1->ChartArea = L"ChartArea1";
+			series1->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::FastLine;
+			series1->Legend = L"Legend1";
+			series1->Name = L"Drehzahl";
+			this->spdChart->Series->Add(series1);
 			this->spdChart->Size = System::Drawing::Size(630, 409);
 			this->spdChart->TabIndex = 6;
 			this->spdChart->Text = L"chart1";
@@ -264,15 +261,6 @@ namespace KaroshiGUI {
 			this->label1->Size = System::Drawing::Size(69, 13);
 			this->label1->TabIndex = 7;
 			this->label1->Text = L"CTRL Speed";
-			// 
-			// label2
-			// 
-			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(18, 671);
-			this->label2->Name = L"label2";
-			this->label2->Size = System::Drawing::Size(112, 13);
-			this->label2->TabIndex = 8;
-			this->label2->Text = L"Identifier CTRL Speed";
 			// 
 			// label3
 			// 
@@ -347,35 +335,39 @@ namespace KaroshiGUI {
 			// 
 			// idDebug
 			// 
-			this->idDebug->Location = System::Drawing::Point(21, 620);
+			this->idDebug->Hexadecimal = true;
+			this->idDebug->Location = System::Drawing::Point(12, 514);
+			this->idDebug->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 32000, 0, 0, 0 });
 			this->idDebug->Name = L"idDebug";
 			this->idDebug->Size = System::Drawing::Size(120, 20);
 			this->idDebug->TabIndex = 29;
 			// 
 			// dtaDebug
 			// 
-			this->dtaDebug->Location = System::Drawing::Point(147, 620);
+			this->dtaDebug->Location = System::Drawing::Point(147, 514);
+			this->dtaDebug->Maximum = System::Decimal(gcnew cli::array< System::Int32 >(4) { 32000, 0, 0, 0 });
 			this->dtaDebug->Name = L"dtaDebug";
 			this->dtaDebug->Size = System::Drawing::Size(120, 20);
 			this->dtaDebug->TabIndex = 30;
 			// 
 			// sendDebug
 			// 
-			this->sendDebug->Location = System::Drawing::Point(273, 620);
+			this->sendDebug->Location = System::Drawing::Point(282, 514);
 			this->sendDebug->Name = L"sendDebug";
 			this->sendDebug->Size = System::Drawing::Size(75, 20);
 			this->sendDebug->TabIndex = 31;
 			this->sendDebug->Text = L"Send";
 			this->sendDebug->UseVisualStyleBackColor = true;
+			this->sendDebug->MouseClick += gcnew System::Windows::Forms::MouseEventHandler(this, &KaroshiForm::sendDebug_MouseClick);
 			// 
 			// label5
 			// 
 			this->label5->AutoSize = true;
-			this->label5->Location = System::Drawing::Point(18, 604);
+			this->label5->Location = System::Drawing::Point(12, 498);
 			this->label5->Name = L"label5";
-			this->label5->Size = System::Drawing::Size(193, 13);
+			this->label5->Size = System::Drawing::Size(202, 13);
 			this->label5->TabIndex = 32;
-			this->label5->Text = L"ID (HEX)                            Data   (HEX)";
+			this->label5->Text = L"ID (HEX)                               Data   (HEX)";
 			// 
 			// ActSpdBox
 			// 
@@ -395,22 +387,23 @@ namespace KaroshiGUI {
 			// 
 			// trqChart
 			// 
-			chartArea4->AxisX->Enabled = System::Windows::Forms::DataVisualization::Charting::AxisEnabled::False;
-			chartArea4->AxisX->ScaleView->Size = 700;
-			chartArea4->AxisY->IntervalAutoMode = System::Windows::Forms::DataVisualization::Charting::IntervalAutoMode::VariableCount;
-			chartArea4->AxisY->Maximum = 200;
-			chartArea4->AxisY->Minimum = -20;
-			chartArea4->Name = L"ChartArea1";
-			this->trqChart->ChartAreas->Add(chartArea4);
-			legend4->Name = L"Legend1";
-			this->trqChart->Legends->Add(legend4);
+			this->trqChart->BackColor = System::Drawing::SystemColors::ControlDark;
+			chartArea2->AxisX->Enabled = System::Windows::Forms::DataVisualization::Charting::AxisEnabled::False;
+			chartArea2->AxisX->ScaleView->Size = 700;
+			chartArea2->AxisY->IntervalAutoMode = System::Windows::Forms::DataVisualization::Charting::IntervalAutoMode::VariableCount;
+			chartArea2->AxisY->Maximum = 200;
+			chartArea2->AxisY->Minimum = -20;
+			chartArea2->Name = L"ChartArea1";
+			this->trqChart->ChartAreas->Add(chartArea2);
+			legend2->Name = L"Legend1";
+			this->trqChart->Legends->Add(legend2);
 			this->trqChart->Location = System::Drawing::Point(568, 415);
 			this->trqChart->Name = L"trqChart";
-			series4->ChartArea = L"ChartArea1";
-			series4->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
-			series4->Legend = L"Legend1";
-			series4->Name = L"Torque";
-			this->trqChart->Series->Add(series4);
+			series2->ChartArea = L"ChartArea1";
+			series2->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
+			series2->Legend = L"Legend1";
+			series2->Name = L"Torque";
+			this->trqChart->Series->Add(series2);
 			this->trqChart->Size = System::Drawing::Size(630, 362);
 			this->trqChart->TabIndex = 6;
 			this->trqChart->Text = L"chart1";
@@ -519,12 +512,44 @@ namespace KaroshiGUI {
 			this->Info->TabIndex = 47;
 			this->Info->Text = L"Set Torque to zero to control the current";
 			// 
+			// label2
+			// 
+			this->label2->AutoSize = true;
+			this->label2->Font = (gcnew System::Drawing::Font(L"Microsoft Sans Serif", 14.25F, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->label2->Location = System::Drawing::Point(8, 463);
+			this->label2->Name = L"label2";
+			this->label2->Size = System::Drawing::Size(67, 24);
+			this->label2->TabIndex = 48;
+			this->label2->Text = L"Debug";
+			// 
+			// label6
+			// 
+			this->label6->AutoSize = true;
+			this->label6->Location = System::Drawing::Point(12, 384);
+			this->label6->Name = L"label6";
+			this->label6->Size = System::Drawing::Size(32, 13);
+			this->label6->TabIndex = 49;
+			this->label6->Text = L"State";
+			// 
+			// label7
+			// 
+			this->label7->AutoSize = true;
+			this->label7->Location = System::Drawing::Point(12, 153);
+			this->label7->Name = L"label7";
+			this->label7->Size = System::Drawing::Size(32, 13);
+			this->label7->TabIndex = 50;
+			this->label7->Text = L"State";
+			// 
 			// KaroshiForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->BackColor = System::Drawing::SystemColors::AppWorkspace;
+			this->BackColor = System::Drawing::SystemColors::ControlDark;
 			this->ClientSize = System::Drawing::Size(1210, 789);
+			this->Controls->Add(this->label7);
+			this->Controls->Add(this->label6);
+			this->Controls->Add(this->label2);
 			this->Controls->Add(this->Info);
 			this->Controls->Add(this->curBraBar);
 			this->Controls->Add(this->trqBraBar);
@@ -550,18 +575,15 @@ namespace KaroshiGUI {
 			this->Controls->Add(this->ControlMode);
 			this->Controls->Add(this->debugBox);
 			this->Controls->Add(this->label3);
-			this->Controls->Add(this->label2);
 			this->Controls->Add(this->label1);
 			this->Controls->Add(this->spdChart);
 			this->Controls->Add(this->trackBar1);
 			this->Controls->Add(this->SpdBox);
 			this->Controls->Add(this->baudrate);
-			this->Controls->Add(this->idSpd);
 			this->Controls->Add(this->disconnectBt);
 			this->Controls->Add(this->connectBt);
 			this->Name = L"KaroshiForm";
 			this->Text = L"Karoshi";
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->idSpd))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->baudrate))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar1))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->spdChart))->EndInit();
@@ -610,7 +632,7 @@ private: System::Void connectBt_Click(System::Object^ sender, System::EventArgs^
 		}
 		else {
 			Sleep(20);
-			can_v2_set_transceiver_configuration(&can, (uint32_t)956250/*(uint32_t)baudrate->Value*/, 625, CAN_V2_TRANSCEIVER_MODE_NORMAL);
+			can_v2_set_transceiver_configuration(&can,(uint32_t)baudrate->Value, 625, CAN_V2_TRANSCEIVER_MODE_NORMAL);
 			int8_t rbs[] = { 16,-8 };
 			can_v2_set_queue_configuration(&can, 8, 0, 383, rbs, 2, 1);
 			debugBox->Text += "Connected\r\n";
@@ -623,7 +645,7 @@ private: System::Void connectBt_Click(System::Object^ sender, System::EventArgs^
 	}
 }
 /*
-* destroy connection to MasterBrick if button clicked
+* destroy connection to BrickDeamon if button clicked
 */
 private: System::Void disconnectBt_Click(System::Object^ sender, System::EventArgs^ e) {
 	chartTimer->Stop();
@@ -665,20 +687,17 @@ private: System::Void chartTimer_Tick(System::Object^ sender, System::EventArgs^
 		if (success && readIdent1 == trqIdent) {
 			getCanData(data,retData);
 		};
-		/*if (success && readIdent2 == trqIdent) {
-			actTrqDta = getCanData(data,retData);
-		};*/
 		
 	}
 	spdChart->Series["Drehzahl"]->Points->AddY(retData[1]);
+	ActSpdBox->Text = retData[1].ToString();
 	if (spdChart->Series["Drehzahl"]->Points->Count == 700) {
 		spdChart->Series["Drehzahl"]->Points->RemoveAt(0);
-		ActSpdBox->Text = actSpdDta.ToString();
 	}
 	trqChart->Series["Torque"]->Points->AddY(retData[0]);
+	ActTrqBox->Text = retData[0].ToString();
 	if (trqChart->Series["Torque"]->Points->Count == 700) {
 		trqChart->Series["Torque"]->Points->RemoveAt(0);
-		ActTrqBox->Text = actTrqDta.ToString();
 	}
 }
 /*
@@ -748,5 +767,17 @@ private: System::Void AplyBraMod_Click(System::Object^ sender, System::EventArgs
 		can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, CntrlMode, data, 2, &success);
 	}
 }
+private: System::Void sendDebug_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
+	if (connectState) {
+		uint8_t data[2];
+		uint32_t writeIdDebug = (uint32_t)idDebug->Value;
+		getSpeedData((uint16_t)(dtaDebug->Value)*rads, data);
+		can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdDebug, data, 2, &success);
+	}
+	else {
+		
+	}
+}
+
 };
 }
