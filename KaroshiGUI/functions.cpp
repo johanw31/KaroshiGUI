@@ -22,7 +22,7 @@ double fixed_to_float(int32_t input)
 	return ((double)input / (double)(1 << FIXED_POINT_FRACTIONAL_BITS));
 }
 
-void getSpeedData(uint16_t speed, uint8_t* data) {
+void getIntData(uint16_t speed, uint8_t* data) {
 	data[0] = (uint8_t)speed;
 	data[1] = (uint8_t)(speed >> 8);
 }

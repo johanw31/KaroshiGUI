@@ -19,12 +19,13 @@ uint32_t writeIdSpd;
 uint32_t writeIdCur;
 uint32_t writeIdTrq;
 uint32_t writeIdBraCur;
-bool connectState = false;
+bool connected = false;
 bool pp = false;
 int actSpdDta = 0;
 int actTrqDta = 0;
 float rads = 0.42;
-int32_t retData[] = { 0,0 }; // Speed and Torque come in 1 Frame. getCanData is used to get the Information
+int32_t retData[] = { torque,rpm }; // Speed and Torque come in 1 Frame. getCanData is used to get the Information
+
 
 namespace KaroshiGUI {
 
@@ -66,7 +67,8 @@ namespace KaroshiGUI {
 
 	private: System::Windows::Forms::NumericUpDown^ baudrate;
 	private: System::Windows::Forms::TextBox^ SpdBox;
-	private: System::Windows::Forms::TrackBar^ trackBar1;
+	private: System::Windows::Forms::TrackBar^ spdBar;
+
 	private: System::Windows::Forms::DataVisualization::Charting::Chart^ spdChart;
 	private: System::Windows::Forms::Label^ label1;
 
@@ -134,7 +136,7 @@ namespace KaroshiGUI {
 			this->disconnectBt = (gcnew System::Windows::Forms::Button());
 			this->baudrate = (gcnew System::Windows::Forms::NumericUpDown());
 			this->SpdBox = (gcnew System::Windows::Forms::TextBox());
-			this->trackBar1 = (gcnew System::Windows::Forms::TrackBar());
+			this->spdBar = (gcnew System::Windows::Forms::TrackBar());
 			this->spdChart = (gcnew System::Windows::Forms::DataVisualization::Charting::Chart());
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->label3 = (gcnew System::Windows::Forms::Label());
@@ -167,7 +169,7 @@ namespace KaroshiGUI {
 			this->label6 = (gcnew System::Windows::Forms::Label());
 			this->label7 = (gcnew System::Windows::Forms::Label());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->baudrate))->BeginInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar1))->BeginInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->spdBar))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->spdChart))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->curBar))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->idDebug))->BeginInit();
@@ -217,16 +219,16 @@ namespace KaroshiGUI {
 			this->SpdBox->TabIndex = 4;
 			this->SpdBox->TextAlign = System::Windows::Forms::HorizontalAlignment::Center;
 			// 
-			// trackBar1
+			// spdBar
 			// 
-			this->trackBar1->LargeChange = 1;
-			this->trackBar1->Location = System::Drawing::Point(147, 56);
-			this->trackBar1->Maximum = 3500;
-			this->trackBar1->Name = L"trackBar1";
-			this->trackBar1->Size = System::Drawing::Size(415, 45);
-			this->trackBar1->TabIndex = 1;
-			this->trackBar1->ValueChanged += gcnew System::EventHandler(this, &KaroshiForm::trackBar1_ValueChanged);
-			this->trackBar1->MouseCaptureChanged += gcnew System::EventHandler(this, &KaroshiForm::trackBar1_MouseCaptureChanged);
+			this->spdBar->LargeChange = 1;
+			this->spdBar->Location = System::Drawing::Point(147, 56);
+			this->spdBar->Maximum = 3500;
+			this->spdBar->Name = L"spdBar";
+			this->spdBar->Size = System::Drawing::Size(415, 45);
+			this->spdBar->TabIndex = 1;
+			this->spdBar->ValueChanged += gcnew System::EventHandler(this, &KaroshiForm::trackBar1_ValueChanged);
+			this->spdBar->MouseCaptureChanged += gcnew System::EventHandler(this, &KaroshiForm::trackBar1_MouseCaptureChanged);
 			// 
 			// spdChart
 			// 
@@ -367,7 +369,7 @@ namespace KaroshiGUI {
 			this->label5->Name = L"label5";
 			this->label5->Size = System::Drawing::Size(202, 13);
 			this->label5->TabIndex = 32;
-			this->label5->Text = L"ID (HEX)                               Data   (HEX)";
+			this->label5->Text = L"ID (HEX)                               Data   (DEC)";
 			// 
 			// ActSpdBox
 			// 
@@ -577,7 +579,7 @@ namespace KaroshiGUI {
 			this->Controls->Add(this->label3);
 			this->Controls->Add(this->label1);
 			this->Controls->Add(this->spdChart);
-			this->Controls->Add(this->trackBar1);
+			this->Controls->Add(this->spdBar);
 			this->Controls->Add(this->SpdBox);
 			this->Controls->Add(this->baudrate);
 			this->Controls->Add(this->disconnectBt);
@@ -585,7 +587,7 @@ namespace KaroshiGUI {
 			this->Name = L"KaroshiForm";
 			this->Text = L"Karoshi";
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->baudrate))->EndInit();
-			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->trackBar1))->EndInit();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->spdBar))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->spdChart))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->curBar))->EndInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->idDebug))->EndInit();
@@ -599,29 +601,29 @@ namespace KaroshiGUI {
 		}
 #pragma endregion
 	private: System::Void trackBar1_ValueChanged(System::Object^ sender, System::EventArgs^ e) {
-		SpdBox->Text = trackBar1->Value.ToString();
+		SpdBox->Text = spdBar->Value.ToString();
 	}
 
 /*
 * Send Speedbar Data to Controller if value changed
 */
 private: System::Void trackBar1_MouseCaptureChanged(System::Object^ sender, System::EventArgs^ e) {
-	if (connectState) {
+	if (connected) {
 		uint8_t data[2]; 
 		writeIdSpd = (uint32_t)0x400;//(uint32_t)idSpd->Value;
-		getSpeedData((uint16_t)(trackBar1->Value * rads), data);
+		getIntData((uint16_t)(spdBar->Value * rads), data);
 		can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdSpd, data, 2, &success);
 	}
 	else {
-		trackBar1->Value = 0;
-		trackBar1->Text = "Not connected";
+		spdBar->Value = 0;
+		SpdBox->Text = "Not connected";
 	}
 }
 /*
 * Initiate connection to MasterBrick if button clicked
 */
 private: System::Void connectBt_Click(System::Object^ sender, System::EventArgs^ e) {
-	if (!connectState) {
+	if (!connected) {
 		debugBox->Clear();
 		// Create IP connection
 		ipcon_create(&ipcon);
@@ -639,7 +641,7 @@ private: System::Void connectBt_Click(System::Object^ sender, System::EventArgs^
 			debugBox->Text += "\r\nBaudrate: ";
 			debugBox->Text += baudrate->Value;
 			debugBox->Text += "\r\n";
-			connectState = true;
+			connected = true;
 			chartTimer->Start();
 		}
 	}
@@ -650,14 +652,16 @@ private: System::Void connectBt_Click(System::Object^ sender, System::EventArgs^
 private: System::Void disconnectBt_Click(System::Object^ sender, System::EventArgs^ e) {
 	chartTimer->Stop();
 	uint8_t data[2];
-	getSpeedData((uint16_t)0, data);
+	getIntData((uint16_t)0, data);
 	can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdSpd, data, 2, &success);
 	can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdCur, data, 2, &success);
+	can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdTrq, data, 2, &success);
+	can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdBraCur, data, 2, &success);
 	can_v2_set_frame_read_callback_configuration(&can, false);
 	can_v2_destroy(&can);
 	ipcon_destroy(&ipcon); // Calls ipcon_disconnect internally
 	debugBox->Text = "Disconnected";
-	connectState = false;
+	connected = false;
 }
 /*
 * Timer for reading and printing CAN Data
@@ -666,25 +670,21 @@ private: System::Void chartTimer_Tick(System::Object^ sender, System::EventArgs^
 	uint8_t data[15];
 	uint8_t dataLength;
 	//identifiers
-	uint32_t readIdent1;
-	uint32_t readIdent2;
+	uint32_t readIdent;
 	uint32_t spdIdent = 0x3E8;
-	uint32_t trqIdent = 0x2E0;
+	uint32_t TrqSpdIdent = 0x2E0;
 	//Read filter
 	uint32_t filterMask = 0x7FF;
 	uint32_t filterIdent1;
 	uint32_t filterIdent2;
 	uint8_t type = CAN_V2_FRAME_TYPE_STANDARD_DATA;
 
-	if (connectState) {
+	if (connected) {
 		pp = !pp;
-		filterIdent1 = trqIdent;
-		filterIdent2 = trqIdent;
+		can_v2_set_read_filter_configuration(&can, (uint8_t)0, CAN_V2_FILTER_MODE_MATCH_STANDARD_ONLY, filterMask, TrqSpdIdent);
+		can_v2_read_frame(&can, &success, &type, &readIdent, data, &dataLength);
 
-		can_v2_set_read_filter_configuration(&can, (uint8_t)0, CAN_V2_FILTER_MODE_MATCH_STANDARD_ONLY, filterMask, filterIdent2);
-		can_v2_read_frame(&can, &success, &type, &readIdent1, data, &dataLength);
-
-		if (success && readIdent1 == trqIdent) {
+		if (success && readIdent == TrqSpdIdent) {
 			getCanData(data,retData);
 		};
 		
@@ -706,8 +706,8 @@ private: System::Void chartTimer_Tick(System::Object^ sender, System::EventArgs^
 private: System::Void cntrlApplyBtn_Click(System::Object^ sender, System::EventArgs^ e) {
 	uint8_t data[2];
 	uint32_t CntrlMode = 0x600;
-	getSpeedData((uint16_t)ControlMode->SelectedIndex, data);
-	if (connectState) {
+	getIntData((uint16_t)ControlMode->SelectedIndex, data);
+	if (connected) {
 		can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, CntrlMode, data, 2, &success);
 	}
 }
@@ -721,10 +721,10 @@ private: System::Void ControlMode_SelectedIndexChanged(System::Object^ sender, S
 * Send Torquebar Data to Controller if value changed
 */
 private: System::Void trqBraBar_MouseCaptureChanged(System::Object^ sender, System::EventArgs^ e) {
-	if (connectState) {
+	if (connected) {
 		uint8_t data[2];
 		writeIdTrq = (uint32_t)0x401;//(uint32_t)idSpd->Value;
-		getSpeedData((uint16_t)(trqBraBar->Value), data);
+		getIntData((uint16_t)(trqBraBar->Value), data);
 		can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdTrq, data, 2, &success);
 	}
 	else {
@@ -742,10 +742,10 @@ private: System::Void trqBraBar_ValueChanged(System::Object^ sender, System::Eve
 * Send BrakeCurrentBar Data to Controller if value changed
 */
 private: System::Void curBraBar_MouseCaptureChanged(System::Object^ sender, System::EventArgs^ e) {
-	if (connectState) {
+	if (connected) {
 		uint8_t data[2];
 		writeIdBraCur = (uint32_t)0x501;//(uint32_t)idSpd->Value;
-		getSpeedData((uint16_t)(curBraBar->Value) * magnetCount, data);
+		getIntData((uint16_t)(curBraBar->Value) * magnetCount, data);
 		can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdBraCur, data, 2, &success);
 	}
 	else {
@@ -762,20 +762,21 @@ private: System::Void curBraBar_ValueChanged(System::Object^ sender, System::Eve
 private: System::Void AplyBraMod_Click(System::Object^ sender, System::EventArgs^ e) {
 	uint8_t data[2];
 	uint32_t CntrlMode = 0x601;
-	getSpeedData((uint16_t)(ctrlModBra->SelectedIndex + 1), data);
-	if (connectState) {
+	getIntData((uint16_t)(ctrlModBra->SelectedIndex + 1), data);
+	if (connected) {
 		can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, CntrlMode, data, 2, &success);
 	}
 }
+
+/*
+*Sends Data to the CAN ID entered in the debug ID Box
+*/
 private: System::Void sendDebug_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
-	if (connectState) {
+	if (connected) {
 		uint8_t data[2];
 		uint32_t writeIdDebug = (uint32_t)idDebug->Value;
-		getSpeedData((uint16_t)(dtaDebug->Value)*rads, data);
+		getIntData((uint16_t)(dtaDebug->Value), data);
 		can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdDebug, data, 2, &success);
-	}
-	else {
-		
 	}
 }
 
