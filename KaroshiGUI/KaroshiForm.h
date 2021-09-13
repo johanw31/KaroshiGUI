@@ -227,8 +227,8 @@ namespace KaroshiGUI {
 			this->spdBar->Name = L"spdBar";
 			this->spdBar->Size = System::Drawing::Size(415, 45);
 			this->spdBar->TabIndex = 1;
-			this->spdBar->ValueChanged += gcnew System::EventHandler(this, &KaroshiForm::trackBar1_ValueChanged);
-			this->spdBar->MouseCaptureChanged += gcnew System::EventHandler(this, &KaroshiForm::trackBar1_MouseCaptureChanged);
+			this->spdBar->ValueChanged += gcnew System::EventHandler(this, &KaroshiForm::spdBar_ValueChanged);
+			this->spdBar->MouseCaptureChanged += gcnew System::EventHandler(this, &KaroshiForm::spdBar_MouseCaptureChanged);
 			// 
 			// spdChart
 			// 
@@ -600,25 +600,7 @@ namespace KaroshiGUI {
 
 		}
 #pragma endregion
-	private: System::Void trackBar1_ValueChanged(System::Object^ sender, System::EventArgs^ e) {
-		SpdBox->Text = spdBar->Value.ToString();
-	}
 
-/*
-* Send Speedbar Data to Controller if value changed
-*/
-private: System::Void trackBar1_MouseCaptureChanged(System::Object^ sender, System::EventArgs^ e) {
-	if (connected) {
-		uint8_t data[2]; 
-		writeIdSpd = (uint32_t)0x400;//(uint32_t)idSpd->Value;
-		getIntData((uint16_t)(spdBar->Value * rads), data);
-		can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdSpd, data, 2, &success);
-	}
-	else {
-		spdBar->Value = 0;
-		SpdBox->Text = "Not connected";
-	}
-}
 /*
 * Initiate connection to MasterBrick if button clicked
 */
@@ -647,7 +629,7 @@ private: System::Void connectBt_Click(System::Object^ sender, System::EventArgs^
 	}
 }
 /*
-* destroy connection to BrickDeamon if button clicked
+* Destroy connection to BrickDeamon if button clicked
 */
 private: System::Void disconnectBt_Click(System::Object^ sender, System::EventArgs^ e) {
 	chartTimer->Stop();
@@ -664,26 +646,45 @@ private: System::Void disconnectBt_Click(System::Object^ sender, System::EventAr
 	connected = false;
 }
 /*
-* Timer for reading and printing CAN Data
+* Änderungen am Geschwindigkeits-Einstellregler werden direkt in das entsprechende Textfeld geschrieben
+*/
+private: System::Void spdBar_ValueChanged(System::Object^ sender, System::EventArgs^ e) {
+	SpdBox->Text = spdBar->Value.ToString();
+}
+
+/*
+* Wenn der Geschwindigkeits-Einstellregler losgelassen wird, wird die ausgewählte Geschwindigkeit übertragen
+*/
+private: System::Void spdBar_MouseCaptureChanged(System::Object^ sender, System::EventArgs^ e) {
+	if (connected) {
+		uint8_t data[2];
+		writeIdSpd = (uint32_t)0x400;//(uint32_t)idSpd->Value;
+		getIntData((uint16_t)(spdBar->Value * rads), data);
+		can_v2_write_frame(&can, CAN_V2_FRAME_TYPE_STANDARD_DATA, writeIdSpd, data, 2, &success);
+	}
+	else {
+		spdBar->Value = 0;
+		SpdBox->Text = "Not connected";
+	}
+}
+/*
+* 20ms Timer zum lesen des CAN Bus und ausgeben der Daten auf dem Diagramm. Somit ist sichergestellt, dass die zeitlichen Abstände der Messungen 
+* konstant sind
 */
 private: System::Void chartTimer_Tick(System::Object^ sender, System::EventArgs^ e) {
 	uint8_t data[15];
 	uint8_t dataLength;
 	//identifiers
 	uint32_t readIdent;
-	uint32_t spdIdent = 0x3E8;
-	uint32_t TrqSpdIdent = 0x2E0;
+	uint32_t TrqSpdIdent = 0x2E0; // Die CAN Nachricht mit diesem Identifiert enthält Geschwindigkeit und Drehmoment. Gesendet vom TI Board der Bremse
 	//Read filter
-	uint32_t filterMask = 0x7FF;
-	uint32_t filterIdent1;
-	uint32_t filterIdent2;
+	uint32_t filterMask = 0x7FF;  //Filtermaske, für 11 Bit Identifier
 	uint8_t type = CAN_V2_FRAME_TYPE_STANDARD_DATA;
 
 	if (connected) {
 		pp = !pp;
-		can_v2_set_read_filter_configuration(&can, (uint8_t)0, CAN_V2_FILTER_MODE_MATCH_STANDARD_ONLY, filterMask, TrqSpdIdent);
-		can_v2_read_frame(&can, &success, &type, &readIdent, data, &dataLength);
-
+		can_v2_set_read_filter_configuration(&can, (uint8_t)0, CAN_V2_FILTER_MODE_MATCH_STANDARD_ONLY, filterMask, TrqSpdIdent); // Filter für Buffer 0 einstellen
+		can_v2_read_frame(&can, &success, &type, &readIdent, data, &dataLength); //Dataframe aus der Queue lesen
 		if (success && readIdent == TrqSpdIdent) {
 			getCanData(data,retData);
 		};
@@ -691,17 +692,17 @@ private: System::Void chartTimer_Tick(System::Object^ sender, System::EventArgs^
 	}
 	spdChart->Series["Drehzahl"]->Points->AddY(retData[1]);
 	ActSpdBox->Text = retData[1].ToString();
-	if (spdChart->Series["Drehzahl"]->Points->Count == 700) {
+	if (spdChart->Series["Drehzahl"]->Points->Count == 700) {  //Max 700 ´Datenpunkte im Diagramm, wenn 700 erreicht dann den ersten löschen 
 		spdChart->Series["Drehzahl"]->Points->RemoveAt(0);
 	}
 	trqChart->Series["Torque"]->Points->AddY(retData[0]);
 	ActTrqBox->Text = retData[0].ToString();
-	if (trqChart->Series["Torque"]->Points->Count == 700) {
+	if (trqChart->Series["Torque"]->Points->Count == 700) {    //Max 700 Datenpunkte im Diagramm, wenn 700 erreicht dann den ersten löschen
 		trqChart->Series["Torque"]->Points->RemoveAt(0);
 	}
 }
 /*
-*Sends the selected Mode via CAN to the Moduleaddress 0x600
+*Sendet den ausgewählten Modus an das TI Borad des Motors
 */
 private: System::Void cntrlApplyBtn_Click(System::Object^ sender, System::EventArgs^ e) {
 	uint8_t data[2];
@@ -712,13 +713,13 @@ private: System::Void cntrlApplyBtn_Click(System::Object^ sender, System::EventA
 	}
 }
 /*
-*Action when changing the Cntrl Mode in the Box
+*Aktion wenn ein anderer Modus im Reiter ausgewählt wird (noch nichts implementiert)
 */
 private: System::Void ControlMode_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) {
 }
 
 /*
-* Send Torquebar Data to Controller if value changed
+* Wenn der Drehmoment-Einstellregler losgelassen wird, wird das ausgewählte Bremsmomentt übertragen
 */
 private: System::Void trqBraBar_MouseCaptureChanged(System::Object^ sender, System::EventArgs^ e) {
 	if (connected) {
@@ -733,13 +734,13 @@ private: System::Void trqBraBar_MouseCaptureChanged(System::Object^ sender, Syst
 	}
 }
 /*
-* Display Torquebar Data in Textbox
+* Änderungen am Drehmoment-Einstellregler werden direkt in das entsprechende Textfeld geschrieben
 */
 private: System::Void trqBraBar_ValueChanged(System::Object^ sender, System::EventArgs^ e) {
 	BraTrqBox->Text = trqBraBar->Value.ToString();
 }
 /*
-* Send BrakeCurrentBar Data to Controller if value changed
+* Wenn der Bremsstrom-Einstellregler losgelassen wird, wird der ausgewählte Strom übertragen
 */
 private: System::Void curBraBar_MouseCaptureChanged(System::Object^ sender, System::EventArgs^ e) {
 	if (connected) {
@@ -754,11 +755,14 @@ private: System::Void curBraBar_MouseCaptureChanged(System::Object^ sender, Syst
 	}
 }
 /*
-* Display BrakeCurrentBar Data in Textbox
+* Wenn der Bremsstrom-Einstellregler losgelassen wird, wird die ausgewählte Geschwindigkeit übertragen
 */
 private: System::Void curBraBar_ValueChanged(System::Object^ sender, System::EventArgs^ e) {
 	BraCurBox->Text = curBraBar->Value.ToString();
 }
+/*
+* Schickt den ausgewählten Modus an das TI Board von der Bremse
+*/
 private: System::Void AplyBraMod_Click(System::Object^ sender, System::EventArgs^ e) {
 	uint8_t data[2];
 	uint32_t CntrlMode = 0x601;
@@ -769,7 +773,7 @@ private: System::Void AplyBraMod_Click(System::Object^ sender, System::EventArgs
 }
 
 /*
-*Sends Data to the CAN ID entered in the debug ID Box
+*Zum debuggen: schickt die eingetragenen Daten an den eingetragenen Identifier
 */
 private: System::Void sendDebug_MouseClick(System::Object^ sender, System::Windows::Forms::MouseEventArgs^ e) {
 	if (connected) {
