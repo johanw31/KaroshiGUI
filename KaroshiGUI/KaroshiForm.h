@@ -104,6 +104,7 @@ namespace KaroshiGUI {
 	private: System::Windows::Forms::Label^ label2;
 	private: System::Windows::Forms::Label^ label6;
 	private: System::Windows::Forms::Label^ label7;
+	private: System::Windows::Forms::Button^ hlpBtn;
 
 
 
@@ -168,6 +169,7 @@ namespace KaroshiGUI {
 			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->label6 = (gcnew System::Windows::Forms::Label());
 			this->label7 = (gcnew System::Windows::Forms::Label());
+			this->hlpBtn = (gcnew System::Windows::Forms::Button());
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->baudrate))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->spdBar))->BeginInit();
 			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->spdChart))->BeginInit();
@@ -545,12 +547,23 @@ namespace KaroshiGUI {
 			this->label7->TabIndex = 50;
 			this->label7->Text = L"State";
 			// 
+			// hlpBtn
+			// 
+			this->hlpBtn->Location = System::Drawing::Point(228, 400);
+			this->hlpBtn->Name = L"hlpBtn";
+			this->hlpBtn->Size = System::Drawing::Size(75, 23);
+			this->hlpBtn->TabIndex = 51;
+			this->hlpBtn->Text = L"Help";
+			this->hlpBtn->UseVisualStyleBackColor = true;
+			this->hlpBtn->Click += gcnew System::EventHandler(this, &KaroshiForm::hlpBtn_Click);
+			// 
 			// KaroshiForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->BackColor = System::Drawing::SystemColors::ControlDark;
 			this->ClientSize = System::Drawing::Size(1210, 789);
+			this->Controls->Add(this->hlpBtn);
 			this->Controls->Add(this->label7);
 			this->Controls->Add(this->label6);
 			this->Controls->Add(this->label2);
@@ -786,5 +799,10 @@ private: System::Void sendDebug_MouseClick(System::Object^ sender, System::Windo
 	}
 }
 
+private: System::Void hlpBtn_Click(System::Object^ sender, System::EventArgs^ e) {
+	debugBox->Clear();
+	debugBox->ForeColor = System::Drawing::Color::Red;
+	debugBox->Text = "Brakecontroller Statemachine:" + Environment::NewLine + "Init -> Idle or Ctrl" + Environment::NewLine + "Ctrl -> Idle -> Init";
+}
 };
 }
