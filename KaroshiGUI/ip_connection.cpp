@@ -1,4 +1,5 @@
 /*
+ * 
  * Copyright (C) 2012-2016, 2019-2020 Matthias Bolte <matthias@tinkerforge.com>
  * Copyright (C) 2011 Olaf Lüke <olaf@tinkerforge.com>
  *

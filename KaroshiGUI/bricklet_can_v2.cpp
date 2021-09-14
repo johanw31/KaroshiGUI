@@ -1,13 +1,3 @@
-/* ***********************************************************
- * This file was automatically generated on 2021-01-15.      *
- *                                                           *
- * C/C++ Bindings Version 2.1.31                             *
- *                                                           *
- * If you have a bugfix for this file and want to commit it, *
- * please fix the bug in the generator. You can find a link  *
- * to the generators git repository on tinkerforge.com       *
- *************************************************************/
-
 
 #define IPCON_EXPOSE_INTERNALS
 
