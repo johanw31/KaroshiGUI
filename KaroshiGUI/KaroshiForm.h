@@ -242,6 +242,7 @@ namespace KaroshiGUI {
 			chartArea1->AxisY->ScrollBar->ButtonColor = System::Drawing::Color::Red;
 			chartArea1->Name = L"ChartArea1";
 			this->spdChart->ChartAreas->Add(chartArea1);
+			legend1->DockedToChartArea = L"ChartArea1";
 			legend1->Name = L"Legend1";
 			this->spdChart->Legends->Add(legend1);
 			this->spdChart->Location = System::Drawing::Point(568, 12);
@@ -373,7 +374,7 @@ namespace KaroshiGUI {
 			// 
 			// ActSpdBox
 			// 
-			this->ActSpdBox->Location = System::Drawing::Point(1093, 56);
+			this->ActSpdBox->Location = System::Drawing::Point(1078, 57);
 			this->ActSpdBox->Multiline = true;
 			this->ActSpdBox->Name = L"ActSpdBox";
 			this->ActSpdBox->Size = System::Drawing::Size(73, 25);
@@ -381,7 +382,7 @@ namespace KaroshiGUI {
 			// 
 			// ActTrqBox
 			// 
-			this->ActTrqBox->Location = System::Drawing::Point(1093, 462);
+			this->ActTrqBox->Location = System::Drawing::Point(1078, 463);
 			this->ActTrqBox->Multiline = true;
 			this->ActTrqBox->Name = L"ActTrqBox";
 			this->ActTrqBox->Size = System::Drawing::Size(73, 25);
@@ -397,16 +398,17 @@ namespace KaroshiGUI {
 			chartArea2->AxisY->Minimum = -20;
 			chartArea2->Name = L"ChartArea1";
 			this->trqChart->ChartAreas->Add(chartArea2);
+			legend2->DockedToChartArea = L"ChartArea1";
 			legend2->Name = L"Legend1";
 			this->trqChart->Legends->Add(legend2);
-			this->trqChart->Location = System::Drawing::Point(568, 415);
+			this->trqChart->Location = System::Drawing::Point(576, 409);
 			this->trqChart->Name = L"trqChart";
 			series2->ChartArea = L"ChartArea1";
 			series2->ChartType = System::Windows::Forms::DataVisualization::Charting::SeriesChartType::Spline;
 			series2->Legend = L"Legend1";
 			series2->Name = L"Torque";
 			this->trqChart->Series->Add(series2);
-			this->trqChart->Size = System::Drawing::Size(630, 362);
+			this->trqChart->Size = System::Drawing::Size(622, 390);
 			this->trqChart->TabIndex = 6;
 			this->trqChart->Text = L"chart1";
 			// 
