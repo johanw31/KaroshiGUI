@@ -20,11 +20,10 @@ uint32_t writeIdCur;
 uint32_t writeIdTrq;
 uint32_t writeIdBraCur;
 bool connected = false;
-bool pp = false;
 int actSpdDta = 0;
 int actTrqDta = 0;
 float rads = 0.42;
-int32_t retData[] = { torque,rpm }; // Speed and Torque come in 1 Frame. getCanData is used to get the Information
+int32_t retData[] = { torque,rpm }; // Geschwindigkeit und Drehmoment werden in einem Frame gesendet. getCanData trennt die Informationen und legt sie in retData ab
 
 
 namespace KaroshiGUI {
@@ -697,7 +696,6 @@ private: System::Void chartTimer_Tick(System::Object^ sender, System::EventArgs^
 	uint8_t type = CAN_V2_FRAME_TYPE_STANDARD_DATA;
 
 	if (connected) {
-		pp = !pp;
 		can_v2_set_read_filter_configuration(&can, (uint8_t)0, CAN_V2_FILTER_MODE_MATCH_STANDARD_ONLY, filterMask, TrqSpdIdent); // Filter für Buffer 0 einstellen
 		can_v2_read_frame(&can, &success, &type, &readIdent, data, &dataLength); //Dataframe aus der Queue lesen
 		if (success && readIdent == TrqSpdIdent) {
@@ -803,6 +801,7 @@ private: System::Void hlpBtn_Click(System::Object^ sender, System::EventArgs^ e)
 	debugBox->Clear();
 	debugBox->ForeColor = System::Drawing::Color::Red;
 	debugBox->Text = "Brakecontroller Statemachine:" + Environment::NewLine + "Init -> Idle or Ctrl" + Environment::NewLine + "Ctrl -> Idle -> Init";
+
 }
 };
 }
