@@ -801,7 +801,6 @@ private: System::Void hlpBtn_Click(System::Object^ sender, System::EventArgs^ e)
 	debugBox->Clear();
 	debugBox->ForeColor = System::Drawing::Color::Red;
 	debugBox->Text = "Brakecontroller Statemachine:" + Environment::NewLine + "Init -> Idle or Ctrl" + Environment::NewLine + "Ctrl -> Idle -> Init";
-
 }
 };
 }
