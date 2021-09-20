@@ -4,6 +4,10 @@
 
 using namespace std;
 
+/*
+* Die Funktionen dienen nur zum umrechnen der CanBus Daten in die entsprechende Größen.
+* Diese sind hauptsächlich testweise und beim debuggen entstanden. Somit werden nicht mehr alle verwendet
+*/
 
 union canData16 {
 	int16_t int16Data;
